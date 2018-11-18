@@ -1,0 +1,91 @@
+#!/bin/bash
+# Creat customerDetails file if it does not exist
+# Update customerDetails with user input
+# and return to menu
+
+# Create  customer details file if it does not already exist
+touch customerDetails
+# Special tab character 
+readonly tab='\t'
+
+# Ask user for customer name
+# Loop until valid input is entered
+while true
+do
+	echo "Please enter the customer's name"
+	read custName
+
+	if [ ! -z "$custName" ]
+	then
+		break;
+	else 
+		echo "Invalid input"
+	fi
+done
+
+# Ask user for customer address
+# Loop until valid input is entered
+while true
+do
+	echo "Please enter the customer's address"
+	read custAddress
+
+	if [ ! -z "$custAddress" ]
+	then
+		break;
+	else
+		echo "Invalid input"
+	fi
+done
+
+# Ask user for customer Eircode
+# Loop until valid input is entered
+while true
+do
+	echo "Please enter the customer's Eircode"
+	read custEircode
+
+	# Check if input is not unset or empty
+	if [ ! -z "$custEircode" ]
+	then
+		break;
+	else
+		echo "Invalid input"
+	fi
+done
+
+# Ask user for customer's mobile number
+# Loop until valid input is entered
+while true
+do
+	echo "Please enter the customer's 10 digit mobile number (only digits):"
+	read custMobile
+
+	# Input must only contain numbers and must be 10 digits long
+	if [[ "$custMobile" =~ ^[0-9]{10}$ ]]
+	then
+		break;
+	else
+		echo "Invalid input"
+	fi
+done
+
+# Ask user for customer's email address
+# Loop until valid input is entered
+while true
+do
+	echo "Please enter the customer's email"
+	read custEmail
+
+	# Check for valid email address
+	if [[ "$custEmail" =~ ^[a-zA-Z0-9._%+-]+@[a-za-Z0-9.-]+\.[a-zA-Z]{2,4}$ ]]
+	then
+		break;
+	else
+		echo "Invalid input"
+	fi
+done
+# Add new customer to customereDetails file
+printf "$custName\t$custAddress\t$custEircode\t$custMobile\t$custEmail\n" >> customerDetails
+
+

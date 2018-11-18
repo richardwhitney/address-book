@@ -1,0 +1,53 @@
+#!/bin/bash
+# Remove a customer from the customer details file
+# Display all customers in customerDetails file
+# Ask user to enter a customer name and retrieve list of matches
+# Present the user with matching list and allow user to select the correct customer to remove
+
+# Check if customerDetails file exist
+if [ -e "customerDetails" ]
+then
+	# Display all customers in table form
+	#column -t customerDetails
+
+	# Ask user to enter a customer name
+	# Loop until valid input is entered
+	while true
+	do
+		echo "Please enter the customer's name that you wish to delete:"
+		read custName
+
+		if [ ! -z "$custName" ]
+		then
+			break;
+		else
+			echo "Invalid input"
+		fi
+	done
+	#clear the console
+	clear
+	# Set the promt
+	PS3='Please confirm customer to remove or cancle: '
+	# Search customerDetails file and place matches into an array with each element seperated by a new line
+	IFS=$'\n'
+	options=( $(grep -i "$custName" customerDetails) )
+	# List cutomers in a menu 
+	select opt in "${options[@]}" "Cancle" ; do
+		# If the user selects the last optoin (cancle option)
+		if (( REPLY == 1 + ${#options[@]} )) ; then
+			break;
+		# If the user selects a valid customer
+		elif (( REPLY > 0 && REPLY <= ${#options[@]} )) ; then
+			# Remove the selected customer
+			grep -v  "$opt" customerDetails > temp
+			mv temp customerDetails
+			break
+		# The user selected an invalid option
+		else
+			echo "Invalid option."
+		fi
+	done
+else
+	echo "There are currently no customers"
+fi
+

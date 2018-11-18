@@ -1,0 +1,36 @@
+#!/bin/bash
+#Search for a customer in customerDetails
+
+# Check if customerDetails file exists
+if [ -e customerDetails ]
+then
+	# Ask user to enter a customer detail
+	# Loop until valid input is entered
+	while true
+	do
+		echo "Please enter a detail of the custome that you wish to search: "
+		read searchTerm
+
+		if [ ! -z searchTerm ]
+		then
+			break;
+		else
+			echo "Invalid input"
+		fi
+	done
+	# Clear the console
+	clear
+	# Search customerDetails file and display result in table form
+	result=$(grep -i "$searchTerm" customerDetails | column -t)
+	if [ ! -z "${result}" ]
+	then
+		echo "$result"
+	else
+		echo "No matches found"
+	fi
+	printf '\n\n'
+	# Ask the user for any input before the script finishes executing
+	read -n 1 -s -r -p "Press any key to continue..."
+else
+	echo "There are currently no customers"
+fi

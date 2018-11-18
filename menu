@@ -1,0 +1,142 @@
+#!/bin/bash
+# Entry point for the program
+# Present the user with a menu
+# Read in option from user and execute appropriate script
+
+
+# Email customer method
+# User can email multiple customers at the same time
+email_cust() {
+	# Array to hold customer emails
+	emailList=()
+	# Boolean to determine if user wants to add more emails to the list
+	addAddress=true
+	# Loop until user has finished adding customer emails
+	while [ "$addAddress" = true ]
+	do
+		# Loop until user enters valid input
+		while true
+		do
+			clear
+			echo "Please enter the customer's name that you wish to email: "
+			read custName
+			# Check if input is not unset or empty
+			if [ ! -z "$custName" ]
+			then
+				break;
+			else
+				echo "Invalid input"
+			fi
+		done
+
+		clear
+		# Set the prompt
+		PS3='Please confirm the customer that you wish to email: '
+		# Split word by new line so each line in customerDetails is an element in array
+		IFS=$'\n'
+		# Search for name enetered by user and put matches in array
+		options=( $(grep -i "$custName" customerDetails) )
+		# List matches in a menu with last option = cancle
+		select opt in "${options[@]}" "Cancle" ; do
+			# If user selects the last option (cancle) exit method
+			if (( REPLY == 1 + ${#options[@]} )) ; then
+				return 1
+			# If user selects a valid customer
+			elif (( REPLY > 0 && REPLY <= ${#options[@]} )) ; then
+				# Extract the customer's email address from the option in the menu
+				emailAddress=$(echo $opt | awk -F"\t" '{print $5}')
+				# Add the email address to the array
+				emailList+=("$emailAddress")
+				# Let the user know what email addresses are currently in the array
+				echo -e "\nMailing List:"
+				echo "${emailList[*]}"
+				break
+			else
+				echo "Invalid option."
+			fi
+		done
+		echo -e "\n"
+		# Ask the user would they like to add another email address
+		read -r -p "Would you like to add another customer to the email list? [y/N] " response
+		case "$response" in
+			# Continue adding email addresses
+			y|Y ) echo "OK";;
+			# Exit loop, stop adding email addresses
+			n|N ) addAddress=false
+				  break ;;
+			# Any other input is invalid
+			  * ) echo "Ivalid option" ;;
+		esac
+	done
+
+	# Ask user to enter a subject for the email
+	# Continue looping if input is invalid (i.e. blank)
+	while true
+	do
+		echo -e "\nPlease enter the subject for the email"
+		read mailSubject
+		# Check if input is not unset or empty
+		if [ ! -z "$mailSubject" ]
+		then
+				break;
+		else
+				echo "Invalid input"
+		fi
+	done
+
+	# Ask user to enter a message for the email
+	# Continue looping if input is invalid (i.e. blank)
+	while true
+	do
+		echo -e "\nPlease enter the message for the email"
+		read mailMessage
+		# Check if input is not unset or empty
+		if [ ! -z "$mailMessage" ]
+		then
+				break;
+		else
+				echo "Invalid input"
+		fi
+	done
+
+	# Iterate through email list and send email for each address in list
+	for custEmail in "${emailList[@]}"
+	do
+		echo "$mailMessage" | mail -s "$mailSubject" "$custEmail"
+	done
+}
+
+# Display menu to user 
+# Keep looping until user selects to exit the script
+while :
+do
+	clear
+	# Use here tag to enter mult-line string (i.e. the menu options)
+	cat<<EOF
+	===========================================
+	Welcome. Please choose one of the following
+	-------------------------------------------
+	1. Add a new Customer
+	2. Remove an existing Customer
+	3. Search for a customer
+	4. E-mail a Customer
+	5. Exit application
+	-------------------------------------------
+	Enter a Number:
+EOF
+	# Only read the 1st character entered and don't echo 
+	read -n1 -s
+	case "$REPLY" in
+		"1") clear
+			 ./addCust;;
+		"2") clear
+			 ./remCust;;
+		"3") clear
+			 ./findCust;;
+		"4") clear
+			 email_cust;;
+		"5") clear
+			 exit;;
+		 * ) echo "Invalid option";;
+	esac
+done
